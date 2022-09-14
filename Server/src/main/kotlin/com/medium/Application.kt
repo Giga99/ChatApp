@@ -1,11 +1,11 @@
 package com.medium
 
 import com.medium.data.user.MongoUserDataSource
-import com.medium.data.user.User
 import com.medium.plugins.*
+import com.medium.security.hashing.SHA256HashingService
+import com.medium.security.token.JwtTokenService
+import com.medium.security.token.TokenConfig
 import io.ktor.server.application.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 
@@ -21,11 +21,24 @@ fun Application.module() {
         connectionString = "mongodb+srv://$mongoUsername:$mongoPassword@cluster0.kpks9jj.mongodb.net/$dbName?retryWrites=true&w=majority"
     ).coroutine.getDatabase(dbName)
     val userDataSource = MongoUserDataSource(db)
+    val tokenService = JwtTokenService()
+    val tokenConfig = TokenConfig(
+        issuer = environment.config.property("jwt.issuer").getString(),
+        audience = environment.config.property("jwt.audience").getString(),
+        expiresIn = 365 * 1000L * 60L * 60L * 24L,
+        secret = System.getenv("JWT_SECRET")
+    )
+    val hashingService = SHA256HashingService()
 
     configureHTTP()
-    configureSecurity()
+    configureSecurity(tokenConfig)
     configureMonitoring()
     configureSerialization()
     configureSockets()
-    configureRouting()
+    configureRouting(
+        hashingService = hashingService,
+        userDataSource = userDataSource,
+        tokenService = tokenService,
+        tokenConfig = tokenConfig
+    )
 }
