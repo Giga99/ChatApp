@@ -1,17 +1,19 @@
 package com.medium.plugins
 
+import com.medium.auth.AuthController
+import com.medium.data.chat.ChatDataSource
+import com.medium.data.chat.MongoChatDataSource
 import com.medium.data.user.MongoUserDataSource
 import com.medium.data.user.UserDataSource
 import com.medium.security.hashing.HashingService
 import com.medium.security.hashing.SHA256HashingService
 import com.medium.security.manager.TokensManager
 import com.medium.security.manager.TokensManagerImpl
-import com.typesafe.config.ConfigFactory
+import com.medium.user.UsersController
 import io.ktor.server.application.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
-import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 
@@ -38,7 +40,19 @@ fun Application.configureKoin() {
         }
 
         single<UserDataSource> {
-            MongoUserDataSource(get() as CoroutineDatabase)
+            MongoUserDataSource(get())
+        }
+
+        single<ChatDataSource> {
+            MongoChatDataSource(get())
+        }
+
+        single {
+            AuthController(get(), get(), get())
+        }
+
+        single {
+            UsersController(get())
         }
     }
 

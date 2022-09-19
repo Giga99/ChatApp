@@ -1,6 +1,7 @@
 package com.medium.plugins
 
 import com.medium.routes.authRoutes
+import com.medium.routes.chatRoutes
 import com.medium.routes.usersRoutes
 import com.medium.utils.toBasicResponse
 import io.ktor.http.*
@@ -31,5 +32,6 @@ fun Application.configureRouting() {
 
         authRoutes()
         usersRoutes()
+        chatRoutes()
     }
 }
