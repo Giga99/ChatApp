@@ -8,6 +8,7 @@ import com.medium.data.user.UserDataSource
 import com.medium.security.hashing.HashingService
 import com.medium.security.hashing.SaltedHash
 import com.medium.security.manager.TokensManager
+import com.medium.utils.toBasicResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -20,20 +21,22 @@ fun Route.authRoutes() {
     val hashingService by inject<HashingService>()
     val userDataSource by inject<UserDataSource>()
 
-    register(
-        tokensManager = tokensManager,
-        hashingService = hashingService,
-        userDataSource = userDataSource
-    )
-    login(
-        tokensManager = tokensManager,
-        hashingService = hashingService,
-        userDataSource = userDataSource
-    )
-    refreshToken(
-        tokensManager = tokensManager,
-        userDataSource = userDataSource
-    )
+    route("auth/") {
+        register(
+            tokensManager = tokensManager,
+            hashingService = hashingService,
+            userDataSource = userDataSource
+        )
+        login(
+            tokensManager = tokensManager,
+            hashingService = hashingService,
+            userDataSource = userDataSource
+        )
+        refreshToken(
+            tokensManager = tokensManager,
+            userDataSource = userDataSource
+        )
+    }
 }
 
 fun Route.register(
@@ -41,16 +44,33 @@ fun Route.register(
     hashingService: HashingService,
     userDataSource: UserDataSource
 ) {
-    post("auth/register") {
+    post("register") {
         val request = call.receiveNullable<AuthRequest>() ?: kotlin.run {
-            call.respond(HttpStatusCode.BadRequest)
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>()
+            )
             return@post
         }
 
         val areFieldsBlank = request.username.isBlank() || request.password.isBlank()
+        if (areFieldsBlank) {
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>(message = "Username and password can't be blank")
+            )
+            return@post
+        }
+
         val isPasswordTooShort = request.password.length < 8
-        if (areFieldsBlank || isPasswordTooShort) {
-            call.respond(HttpStatusCode.BadRequest)
+        if (isPasswordTooShort) {
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>(message = "Password is too short")
+            )
             return@post
         }
 
@@ -62,18 +82,25 @@ fun Route.register(
         )
         val wasAcknowledged = userDataSource.insertUser(user)
         if (!wasAcknowledged) {
-            call.respond(HttpStatusCode.NotAcceptable)
+            val status = HttpStatusCode.ExpectationFailed
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>()
+            )
             return@post
         }
 
         val accessToken = tokensManager.generateAccessToken(user = user)
         val refreshToken = tokensManager.generateRefreshToken(user = user)
 
+        val status = HttpStatusCode.OK
         call.respond(
-            status = HttpStatusCode.OK,
-            message = AuthResponse(
-                accessToken = accessToken,
-                refreshToken = refreshToken
+            status = status,
+            message = status.toBasicResponse(
+                response = AuthResponse(
+                    accessToken = accessToken,
+                    refreshToken = refreshToken
+                )
             )
         )
     }
@@ -84,15 +111,23 @@ fun Route.login(
     hashingService: HashingService,
     userDataSource: UserDataSource
 ) {
-    post("auth/login") {
+    post("login") {
         val request = call.receiveNullable<AuthRequest>() ?: kotlin.run {
-            call.respond(HttpStatusCode.BadRequest)
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>()
+            )
             return@post
         }
 
         val user = userDataSource.getUserByUsername(request.username)
         if (user == null) {
-            call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>(message = "Incorrect username or password")
+            )
             return@post
         }
 
@@ -104,18 +139,25 @@ fun Route.login(
             )
         )
         if (!isValidPassword) {
-            call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>(message = "Incorrect username or password")
+            )
             return@post
         }
 
         val accessToken = tokensManager.generateAccessToken(user = user)
         val refreshToken = tokensManager.generateRefreshToken(user = user)
 
+        val status = HttpStatusCode.OK
         call.respond(
-            status = HttpStatusCode.OK,
-            message = AuthResponse(
-                accessToken = accessToken,
-                refreshToken = refreshToken
+            status = status,
+            message = status.toBasicResponse(
+                response = AuthResponse(
+                    accessToken = accessToken,
+                    refreshToken = refreshToken
+                )
             )
         )
     }
@@ -125,33 +167,48 @@ fun Route.refreshToken(
     tokensManager: TokensManager,
     userDataSource: UserDataSource
 ) {
-    post("auth/refreshToken") {
+    post("refreshToken") {
         val request = call.receiveNullable<RefreshTokenRequest>() ?: kotlin.run {
-            call.respond(HttpStatusCode.BadRequest)
+            val status = HttpStatusCode.BadRequest
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>()
+            )
             return@post
         }
 
         val isExpired = tokensManager.isTokenExpired(token = request.refreshToken)
         if (isExpired) {
-            call.respond(HttpStatusCode.Unauthorized)
+            val status = HttpStatusCode.Unauthorized
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>()
+            )
             return@post
         }
 
         val username = tokensManager.getUsernameFromToken(token = request.refreshToken)
         val user = userDataSource.getUserByUsername(username)
         if (user == null) {
-            call.respond(HttpStatusCode.NotAcceptable)
+            val status = HttpStatusCode.NotFound
+            call.respond(
+                status = status,
+                message = status.toBasicResponse<Unit>(message = "User with given username not found")
+            )
             return@post
         }
 
         val accessToken = tokensManager.generateAccessToken(user = user)
         val refreshToken = tokensManager.generateRefreshToken(user = user)
 
+        val status = HttpStatusCode.OK
         call.respond(
-            status = HttpStatusCode.OK,
-            message = AuthResponse(
-                accessToken = accessToken,
-                refreshToken = refreshToken
+            status = status,
+            message = status.toBasicResponse(
+                response = AuthResponse(
+                    accessToken = accessToken,
+                    refreshToken = refreshToken
+                )
             )
         )
     }
