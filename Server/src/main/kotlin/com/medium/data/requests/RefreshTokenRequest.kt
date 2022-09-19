@@ -1,9 +1,8 @@
-package com.medium.data.responses
+package com.medium.data.requests
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthResponse(
-    val accessToken: String,
+data class RefreshTokenRequest(
     val refreshToken: String
 )

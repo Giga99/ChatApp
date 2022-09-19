@@ -3,8 +3,7 @@ package com.medium
 import com.medium.data.user.MongoUserDataSource
 import com.medium.plugins.*
 import com.medium.security.hashing.SHA256HashingService
-import com.medium.security.token.JwtTokenService
-import com.medium.security.token.TokenConfig
+import com.medium.security.manager.TokensManagerImpl
 import io.ktor.server.application.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
@@ -18,27 +17,24 @@ fun Application.module() {
     val mongoPassword = System.getenv("MONGO_PASSWORD")
     val dbName = "chat-app"
     val db = KMongo.createClient(
-        connectionString = "mongodb+srv://$mongoUsername:$mongoPassword@cluster0.kpks9jj.mongodb.net/$dbName?retryWrites=true&w=majority"
+        connectionString = "mongodb+srv://$mongoUsername:$mongoPassword@cluster0.kpks9jj.mongodb.net/?retryWrites=true&w=majority"
     ).coroutine.getDatabase(dbName)
     val userDataSource = MongoUserDataSource(db)
-    val tokenService = JwtTokenService()
-    val tokenConfig = TokenConfig(
+
+    val tokensManager = TokensManagerImpl(
         issuer = environment.config.property("jwt.issuer").getString(),
-        audience = environment.config.property("jwt.audience").getString(),
-        expiresIn = 365 * 1000L * 60L * 60L * 24L,
-        secret = System.getenv("JWT_SECRET")
+        audience = environment.config.property("jwt.audience").getString()
     )
     val hashingService = SHA256HashingService()
 
     configureHTTP()
-    configureSecurity(tokenConfig)
+    configureSecurity(tokensManager)
     configureMonitoring()
     configureSerialization()
     configureSockets()
     configureRouting(
+        tokensManager = tokensManager,
         hashingService = hashingService,
-        userDataSource = userDataSource,
-        tokenService = tokenService,
-        tokenConfig = tokenConfig
+        userDataSource = userDataSource
     )
 }
