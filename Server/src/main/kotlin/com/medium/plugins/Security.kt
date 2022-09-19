@@ -1,11 +1,16 @@
 package com.medium.plugins
 
 import com.medium.security.manager.TokensManager
+import com.medium.session.ChatSession
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.sessions.*
+import org.koin.ktor.ext.inject
 
-fun Application.configureSecurity(tokensManager: TokensManager) {
+fun Application.configureSecurity() {
+    val tokensManager by inject<TokensManager>()
+
     authentication {
         jwt {
             realm = this@configureSecurity.environment.config.property("jwt.realm").getString()
@@ -16,5 +21,9 @@ fun Application.configureSecurity(tokensManager: TokensManager) {
                 else null
             }
         }
+    }
+
+    install(Sessions) {
+        cookie<ChatSession>("chat_session")
     }
 }

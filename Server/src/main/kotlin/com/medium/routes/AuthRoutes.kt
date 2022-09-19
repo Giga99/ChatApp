@@ -13,12 +13,13 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 
-fun Route.authRoutes(
-    tokensManager: TokensManager,
-    hashingService: HashingService,
-    userDataSource: UserDataSource
-) {
+fun Route.authRoutes() {
+    val tokensManager by inject<TokensManager>()
+    val hashingService by inject<HashingService>()
+    val userDataSource by inject<UserDataSource>()
+
     register(
         tokensManager = tokensManager,
         hashingService = hashingService,

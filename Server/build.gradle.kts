@@ -3,12 +3,16 @@ val kotlin_version: String by project
 val kmongo_version: String by project
 val commons_codec_version: String by project
 val logback_version: String by project
+val koin_version: String by project
+val koin_ktor_version: String by project
+
 
 plugins {
     application
     kotlin("jvm") version "1.7.10"
     id("io.ktor.plugin") version "2.1.1"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 group = "com.medium"
@@ -39,8 +43,13 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
+    // KMongo
     implementation("org.litote.kmongo:kmongo:$kmongo_version")
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
+
+    // Koin core features
+    implementation("io.insert-koin:koin-ktor:$koin_version")
+    implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 
     implementation("commons-codec:commons-codec:$commons_codec_version")
 }
