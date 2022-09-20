@@ -2,8 +2,9 @@ package com.medium.routes
 
 import com.medium.auth.AuthController
 import com.medium.auth.AuthException
-import com.medium.data.requests.AuthRequest
+import com.medium.data.requests.LoginRequest
 import com.medium.data.requests.RefreshTokenRequest
+import com.medium.data.requests.RegisterRequest
 import com.medium.utils.toBasicResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -24,7 +25,7 @@ fun Route.authRoutes() {
 
 fun Route.register(authController: AuthController) {
     post("register") {
-        val request = call.receiveNullable<AuthRequest>() ?: kotlin.run {
+        val request = call.receiveNullable<RegisterRequest>() ?: kotlin.run {
             val status = HttpStatusCode.BadRequest
             call.respond(
                 status = status,
@@ -51,7 +52,7 @@ fun Route.register(authController: AuthController) {
 
 fun Route.login(authController: AuthController) {
     post("login") {
-        val request = call.receiveNullable<AuthRequest>() ?: kotlin.run {
+        val request = call.receiveNullable<LoginRequest>() ?: kotlin.run {
             val status = HttpStatusCode.BadRequest
             call.respond(
                 status = status,

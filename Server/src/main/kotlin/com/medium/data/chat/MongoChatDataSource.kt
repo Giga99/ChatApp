@@ -9,14 +9,21 @@ class MongoChatDataSource(
     db: CoroutineDatabase
 ) : ChatDataSource {
 
-    private val messages = db.getCollection<Message>()
+    private val chats = db.getCollection<Chat>()
 
-    override suspend fun getAllMessages(user1: String, user2: String): List<Message> = messages.find(
+    override suspend fun getAllChats(username: String): List<Chat> = chats.find(
         or(
-            and(Message::from eq user1, Message::to eq user2),
-            and(Message::from eq user2, Message::to eq user1)
+            Chat::user1 eq username,
+            Chat::user2 eq username
         )
     ).toList()
 
-    override suspend fun insertMessage(message: Message): Boolean = messages.insertOne(message).wasAcknowledged()
+    override suspend fun getChat(user1: String, user2: String): Chat? = chats.findOne(
+        or(
+            and(Chat::user1 eq user1, Chat::user2 eq user2),
+            and(Chat::user1 eq user2, Chat::user2 eq user1)
+        )
+    )
+
+    override suspend fun insertChat(chat: Chat): Boolean = chats.insertOne(chat).wasAcknowledged()
 }

@@ -13,30 +13,31 @@ fun Route.usersRoutes() {
     val usersController by inject<UsersController>()
 
     route("users/") {
-        searchUsers(usersController = usersController)
+        authenticate {
+            searchUsers(usersController = usersController)
+        }
     }
 }
 
 fun Route.searchUsers(
     usersController: UsersController
 ) {
-    authenticate {
-        get("search") {
-            val query = call.request.queryParameters["query"] ?: kotlin.run {
-                val status = HttpStatusCode.BadRequest
-                call.respond(
-                    status = status,
-                    message = status.toBasicResponse<Unit>(message = "`query` parameter is missing")
-                )
-                return@get
-            }
-
-            val users = usersController.searchUsers(query)
-            val status = HttpStatusCode.OK
+    get("search") {
+        val query = call.request.queryParameters["query"] ?: kotlin.run {
+            val status = HttpStatusCode.BadRequest
             call.respond(
                 status = status,
-                message = status.toBasicResponse(response = users)
+                message = status.toBasicResponse<Unit>(message = "`query` parameter is missing")
             )
+            return@get
         }
+
+        val users = usersController.searchUsers(query)
+        val status = HttpStatusCode.OK
+        call.respond(
+            status = status,
+            message = status.toBasicResponse(response = users)
+        )
     }
+
 }

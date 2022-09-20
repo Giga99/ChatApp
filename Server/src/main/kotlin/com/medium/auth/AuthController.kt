@@ -1,7 +1,8 @@
 package com.medium.auth
 
-import com.medium.data.requests.AuthRequest
+import com.medium.data.requests.LoginRequest
 import com.medium.data.requests.RefreshTokenRequest
+import com.medium.data.requests.RegisterRequest
 import com.medium.data.responses.AuthDto
 import com.medium.data.user.User
 import com.medium.data.user.UserDataSource
@@ -15,7 +16,7 @@ class AuthController(
     private val hashingService: HashingService
 ) {
 
-    suspend fun registerUser(request: AuthRequest): AuthDto {
+    suspend fun registerUser(request: RegisterRequest): AuthDto {
         val areFieldsBlank = request.username.isBlank() || request.password.isBlank()
         if (areFieldsBlank) {
             throw AuthException.UsernamePasswordBlankException
@@ -45,7 +46,7 @@ class AuthController(
         )
     }
 
-    suspend fun loginUser(request: AuthRequest): AuthDto {
+    suspend fun loginUser(request: LoginRequest): AuthDto {
         val user =
             userDataSource.getUserByUsername(request.username) ?: throw AuthException.IncorrectUsernamePasswordException
 

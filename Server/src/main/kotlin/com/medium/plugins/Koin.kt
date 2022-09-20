@@ -1,8 +1,11 @@
 package com.medium.plugins
 
 import com.medium.auth.AuthController
+import com.medium.chat.ChatController
 import com.medium.data.chat.ChatDataSource
 import com.medium.data.chat.MongoChatDataSource
+import com.medium.data.message.MessageDataSource
+import com.medium.data.message.MongoMessageDataSource
 import com.medium.data.user.MongoUserDataSource
 import com.medium.data.user.UserDataSource
 import com.medium.security.hashing.HashingService
@@ -43,6 +46,10 @@ fun Application.configureKoin() {
             MongoUserDataSource(get())
         }
 
+        single<MessageDataSource> {
+            MongoMessageDataSource(get())
+        }
+
         single<ChatDataSource> {
             MongoChatDataSource(get())
         }
@@ -53,6 +60,10 @@ fun Application.configureKoin() {
 
         single {
             UsersController(get())
+        }
+
+        single {
+            ChatController(get(), get())
         }
     }
 

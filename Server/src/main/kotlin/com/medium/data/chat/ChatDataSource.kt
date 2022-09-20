@@ -2,7 +2,9 @@ package com.medium.data.chat
 
 interface ChatDataSource {
 
-    suspend fun getAllMessages(user1: String, user2: String): List<Message>
+    suspend fun getAllChats(username: String): List<Chat>
 
-    suspend fun insertMessage(message: Message): Boolean
+    suspend fun getChat(user1: String, user2: String): Chat?
+
+    suspend fun insertChat(chat: Chat): Boolean
 }
