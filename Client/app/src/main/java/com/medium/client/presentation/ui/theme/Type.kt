@@ -1,4 +1,4 @@
-package com.medium.client.ui.theme
+package com.medium.client.presentation.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
