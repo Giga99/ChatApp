@@ -6,5 +6,6 @@ import com.medium.data.user.User
 fun User.toDto(): UserDto =
     UserDto(
         id = id.toString(),
-        username = username
+        username = username,
+        email = email
     )
