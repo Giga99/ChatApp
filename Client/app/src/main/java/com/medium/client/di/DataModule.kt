@@ -10,6 +10,7 @@ import com.medium.client.common.wrappers.session_manager.ChatAppSessionManager
 import com.medium.client.data.local.data_store.ChatAppDataStore
 import com.medium.client.data.local.data_store.ChatAppDataStoreImpl
 import com.medium.client.data.remote.interceptors.AuthInterceptorImpl
+import com.medium.client.data.remote.services.AuthApiService
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -80,4 +81,10 @@ object DataModule {
         .client(okHttpClient)
         .addConverterFactory(moshiConverterFactory)
         .build()
+
+    @Singleton
+    @Provides
+    fun provideAuthApiService(
+        retrofit: Retrofit
+    ): AuthApiService = retrofit.create(AuthApiService::class.java)
 }

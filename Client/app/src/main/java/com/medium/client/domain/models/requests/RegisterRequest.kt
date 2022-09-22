@@ -1,8 +1,5 @@
-package com.medium.data.requests
+package com.medium.client.domain.models.requests
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class RegisterRequest(
     val username: String,
     val email: String,

@@ -5,6 +5,7 @@ import com.medium.client.R
 import com.medium.client.common.annotations.BaseUrl
 import com.medium.client.common.wrappers.session_manager.ChatAppSessionManager
 import com.medium.client.data.local.data_store.ChatAppDataStore
+import com.medium.client.domain.repositories.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,6 +27,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideSessionManager(
-        chatAppDataStore: ChatAppDataStore
-    ): ChatAppSessionManager = ChatAppSessionManager(chatAppDataStore = chatAppDataStore)
+        chatAppDataStore: ChatAppDataStore,
+        authRepository: AuthRepository
+    ): ChatAppSessionManager = ChatAppSessionManager(
+        chatAppDataStore = chatAppDataStore,
+        authRepository = authRepository
+    )
 }

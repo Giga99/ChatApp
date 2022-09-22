@@ -30,6 +30,7 @@ class AuthController(
         val saltedHash = hashingService.generateSaltedHash(value = request.password)
         val user = User(
             username = request.username,
+            email = request.email,
             password = saltedHash.hash,
             salt = saltedHash.salt
         )
