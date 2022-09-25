@@ -9,6 +9,7 @@ import com.medium.data.user.UserDataSource
 import com.medium.security.hashing.HashingService
 import com.medium.security.hashing.SaltedHash
 import com.medium.security.manager.TokensManager
+import com.medium.utils.Constants.PASSWORD_REGEX
 
 class AuthController(
     private val userDataSource: UserDataSource,
@@ -22,9 +23,9 @@ class AuthController(
             throw AuthException.UsernamePasswordBlankException
         }
 
-        val isPasswordTooShort = request.password.length < 8
-        if (isPasswordTooShort) {
-            throw AuthException.PasswordTooShortException
+        val passwordBadFormat = !PASSWORD_REGEX.matches(request.password)
+        if (passwordBadFormat) {
+            throw AuthException.PasswordBadFormatException
         }
 
         val saltedHash = hashingService.generateSaltedHash(value = request.password)
