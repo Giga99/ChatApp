@@ -1,6 +1,6 @@
 package com.medium.client.data.remote.services
 
-import com.medium.client.common.core.BasicApiResponse
+import com.medium.client.common.core.ApiResponse
 import com.medium.client.data.remote.requests.LoginBody
 import com.medium.client.data.remote.requests.RefreshTokenBody
 import com.medium.client.data.remote.requests.RegisterBody
@@ -10,18 +10,18 @@ import retrofit2.http.POST
 
 interface AuthApiService {
 
-    @POST("auth/login")
-    suspend fun login(
-        @Body request: LoginBody
-    ): BasicApiResponse<AuthResponse>
-
     @POST("auth/register")
     suspend fun register(
         @Body request: RegisterBody
-    ): BasicApiResponse<AuthResponse>
+    ): ApiResponse<AuthResponse>
+
+    @POST("auth/login")
+    suspend fun login(
+        @Body request: LoginBody
+    ): ApiResponse<AuthResponse>
 
     @POST("auth/refreshToken")
     suspend fun refreshToken(
         @Body request: RefreshTokenBody
-    ): BasicApiResponse<AuthResponse>
+    ): ApiResponse<AuthResponse>
 }

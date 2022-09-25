@@ -5,7 +5,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.medium.client.presentation.login.NavGraphs
 import com.medium.client.presentation.ui.theme.ChatAppTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 

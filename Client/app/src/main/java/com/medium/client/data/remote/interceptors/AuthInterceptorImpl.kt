@@ -6,26 +6,27 @@ import okhttp3.Request
 import okhttp3.Response
 import java.net.HttpURLConnection
 import javax.inject.Inject
+import javax.inject.Provider
 
 class AuthInterceptorImpl @Inject constructor(
-    private val chatAppSessionManager: ChatAppSessionManager
+    private val chatAppSessionManager: Provider<ChatAppSessionManager>
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        var accessToken = chatAppSessionManager.getAccessToken()
+        var accessToken = chatAppSessionManager.get().getAccessToken()
 
         val response = chain.proceed(newRequestWithAccessToken(accessToken, request))
 
         if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
             synchronized(this) {
-                val newAccessToken = chatAppSessionManager.getAccessToken()
+                val newAccessToken = chatAppSessionManager.get().getAccessToken()
                 if (newAccessToken != accessToken) {
                     return chain.proceed(newRequestWithAccessToken(newAccessToken, request))
                 } else {
                     accessToken = refreshToken()
                     if (accessToken.isNullOrBlank()) {
-                        chatAppSessionManager.logout()
+                        chatAppSessionManager.get().logout()
                         return response
                     }
                     return chain.proceed(newRequestWithAccessToken(accessToken, request))
@@ -38,13 +39,13 @@ class AuthInterceptorImpl @Inject constructor(
 
     private fun newRequestWithAccessToken(accessToken: String?, request: Request): Request =
         request.newBuilder()
-            .header("Authorization", "Bearer $accessToken")
+            .apply { if (accessToken != null) header("Authorization", "Bearer $accessToken") }
             .build()
 
     private fun refreshToken(): String? {
-        val refreshToken: String? = chatAppSessionManager.getRefreshToken()
+        val refreshToken: String? = chatAppSessionManager.get().getRefreshToken()
         refreshToken?.let {
-            return chatAppSessionManager.refreshToken(it)
+            return chatAppSessionManager.get().refreshToken(it)
         } ?: return null
     }
 }

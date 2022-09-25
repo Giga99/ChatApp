@@ -1,12 +1,4 @@
-/*
- * Created by Igor Stevanovic on 9/16/22, 9:26 PM
- * igorstevanovic99@gmail.com
- * Last modified 9/16/22, 9:26 PM
- * Copyright (c) 2022.
- * All rights reserved.
- */
-
-package com.tech4health.androidclient.common.ui
+package com.medium.client.common.ui
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.channels.Channel

@@ -6,11 +6,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.medium.client.common.annotations.BaseUrl
-import com.medium.client.common.wrappers.session_manager.ChatAppSessionManager
 import com.medium.client.data.local.data_store.ChatAppDataStore
 import com.medium.client.data.local.data_store.ChatAppDataStoreImpl
+import com.medium.client.data.remote.api_handler.ApiHandler
+import com.medium.client.data.remote.api_handler.ApiHandlerImpl
 import com.medium.client.data.remote.interceptors.AuthInterceptorImpl
 import com.medium.client.data.remote.services.AuthApiService
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -44,9 +46,9 @@ object DataModule {
     @Singleton
     @Provides
     fun provideMoshi(
-//        adapters: Set<@JvmSuppressWildcards JsonAdapter<*>>
+        adapters: Set<@JvmSuppressWildcards JsonAdapter<*>>
     ): Moshi = Moshi.Builder()
-//        .apply { adapters.forEach { adapter -> add(adapter) } }
+        .apply { adapters.forEach { adapter -> add(adapter) } }
         .build()
 
     @Singleton
@@ -57,16 +59,10 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideAuthInterceptorImpl(
-        chatAppSessionManager: ChatAppSessionManager
-    ): AuthInterceptorImpl = AuthInterceptorImpl(chatAppSessionManager = chatAppSessionManager)
-
-    @Singleton
-    @Provides
     fun provideOkHttpClient(
-        authInterceptorImpl: AuthInterceptorImpl
+        authInterceptorImpl: AuthInterceptorImpl,
     ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().setLevel(level = HttpLoggingInterceptor.Level.BODY))
         .addInterceptor(authInterceptorImpl)
         .build()
 
@@ -87,4 +83,10 @@ object DataModule {
     fun provideAuthApiService(
         retrofit: Retrofit
     ): AuthApiService = retrofit.create(AuthApiService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideApiHandler(
+        moshi: Moshi
+    ): ApiHandler = ApiHandlerImpl(moshi = moshi)
 }

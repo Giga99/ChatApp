@@ -17,7 +17,9 @@ private val LightColorPalette = lightColors(
     primary = ChathamsBlue,
     primaryVariant = RockBlue,
     secondary = Solitude,
-    background = White
+    secondaryVariant = Gray,
+    background = White,
+    onBackground = Black
 
     /* Other default colors to override
     background = Color.White,
