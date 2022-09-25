@@ -1,12 +1,14 @@
 package com.medium.client.presentation.login
 
 import com.medium.client.common.core.Result
+import com.medium.client.presentation.register.RegisterEvent
 
 sealed class LoginEvent {
     data class UsernameInputChanged(val username: String) : LoginEvent()
     data class PasswordInputChanged(val password: String) : LoginEvent()
+    object DoneButtonClicked : LoginEvent()
     object LoginButtonClicked : LoginEvent()
-    object RegisterTextClicked : LoginEvent()
+    object SignUpTextClicked : LoginEvent()
     object ClearUsernameInputButtonClicked : LoginEvent()
     object TogglePasswordHidden : LoginEvent()
 }

@@ -7,4 +7,12 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="dont_have_account">Don`t have an account?</string>
+    <string name="sign_up">Sign up</string>
+
+    <string name="register_your_account">Register your account</string>
+    <string name="fill_details">In order to register fill in these details</string>
+    <string name="email">Email</string>
+    <string name="register">Register</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>

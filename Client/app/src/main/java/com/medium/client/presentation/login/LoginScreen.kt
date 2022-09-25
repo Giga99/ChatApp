@@ -1,5 +1,6 @@
 package com.medium.client.presentation.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.medium.client.R
 import com.medium.client.common.core.Result
 import com.medium.client.presentation.destinations.HomeScreenDestination
+import com.medium.client.presentation.destinations.RegisterScreenDestination
 import com.medium.client.presentation.ui.ChatAppInputField
 import com.medium.client.presentation.ui.ChatAppPrimaryButton
 import com.ramcosta.composedestinations.annotation.Destination
@@ -49,7 +51,8 @@ fun LoginScreen(
         loginViewModel.sideEffects.collect { sideEffect ->
             when (sideEffect) {
                 is LoginSideEffect.NavigateToHomeScreen -> navigator.navigate(HomeScreenDestination)
-                is LoginSideEffect.NavigateToRegisterScreen -> Unit
+                is LoginSideEffect.NavigateToRegisterScreen ->
+                    navigator.navigate(RegisterScreenDestination)
             }
         }
     }
@@ -57,58 +60,86 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.size_16))
+            .padding(dimensionResource(R.dimen.size_16)),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
-        Text(
-            text = stringResource(R.string.welcome_to_chat_app),
-            style = MaterialTheme.typography.h3,
-            color = MaterialTheme.colors.primary
-        )
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
-        ChatAppInputField(
-            value = viewState.username,
-            onValueChange = { loginViewModel.onEvent(LoginEvent.UsernameInputChanged(it)) },
-            placeholderText = stringResource(R.string.username),
-            trailingIcon = painterResource(R.drawable.ic_clear_button),
-            onTrailingIconClick = { loginViewModel.onEvent(LoginEvent.ClearUsernameInputButtonClicked) },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) })
-        )
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_16)))
-        ChatAppInputField(
-            value = viewState.password,
-            onValueChange = { loginViewModel.onEvent(LoginEvent.PasswordInputChanged(it)) },
-            placeholderText = stringResource(R.string.password),
-            trailingIcon = if (viewState.passwordHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-            onTrailingIconClick = { loginViewModel.onEvent(LoginEvent.TogglePasswordHidden) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
+            Text(
+                text = stringResource(R.string.welcome_to_chat_app),
+                style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
+            ChatAppInputField(
+                value = viewState.username,
+                onValueChange = { loginViewModel.onEvent(LoginEvent.UsernameInputChanged(it)) },
+                placeholderText = stringResource(R.string.username),
+                trailingIcon = painterResource(R.drawable.ic_clear_button),
+                onTrailingIconClick = { loginViewModel.onEvent(LoginEvent.ClearUsernameInputButtonClicked) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) })
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_16)))
+            ChatAppInputField(
+                value = viewState.password,
+                onValueChange = { loginViewModel.onEvent(LoginEvent.PasswordInputChanged(it)) },
+                placeholderText = stringResource(R.string.password),
+                trailingIcon = if (viewState.passwordHidden) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                onTrailingIconClick = { loginViewModel.onEvent(LoginEvent.TogglePasswordHidden) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                        loginViewModel.onEvent(LoginEvent.DoneButtonClicked)
+                    }
+                ),
+                visualTransformation = if (viewState.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+            )
+            if (viewState.loginResult is Result.Error) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_32)))
+                Text(
+                    text = viewState.loginResult.message ?: "",
+                    style = MaterialTheme.typography.h4,
+                    color = MaterialTheme.colors.error
+                )
+            }
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
+            ChatAppPrimaryButton(
+                text = stringResource(R.string.login),
+                onClick = {
                     keyboardController?.hide()
                     loginViewModel.onEvent(LoginEvent.LoginButtonClicked)
                 }
-            ),
-            visualTransformation = if (viewState.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-        )
-        if (viewState.loginResult is Result.Error) {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_32)))
-            Text(
-                text = viewState.loginResult.message ?: "",
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.error
             )
         }
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_64)))
-        ChatAppPrimaryButton(
-            text = stringResource(R.string.login),
-            onClick = {
-                keyboardController?.hide()
-                loginViewModel.onEvent(LoginEvent.LoginButtonClicked)
-            }
-        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    vertical = dimensionResource(R.dimen.size_32),
+                    horizontal = dimensionResource(R.dimen.size_16)
+                ),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(R.string.dont_have_account),
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.size_4)))
+            Text(
+                text = stringResource(R.string.sign_up),
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier.clickable { loginViewModel.onEvent(LoginEvent.SignUpTextClicked) }
+            )
+        }
     }
 }

@@ -18,7 +18,7 @@ class LoginViewModel @Inject constructor(
         when (event) {
             is LoginEvent.UsernameInputChanged -> setState { copy(username = event.username) }
             is LoginEvent.PasswordInputChanged -> setState { copy(password = event.password) }
-            is LoginEvent.LoginButtonClicked -> {
+            is LoginEvent.LoginButtonClicked, LoginEvent.DoneButtonClicked -> {
                 setState { copy(loginResult = Result.Loading()) }
                 viewModelScope.launch {
                     val result = authRepository.login(
@@ -33,9 +33,9 @@ class LoginViewModel @Inject constructor(
                     }
                 }
             }
-            is LoginEvent.RegisterTextClicked -> Unit
+            is LoginEvent.SignUpTextClicked -> _sideEffects.trySend(LoginSideEffect.NavigateToRegisterScreen)
             is LoginEvent.ClearUsernameInputButtonClicked -> setState { copy(username = "") }
-            is LoginEvent.TogglePasswordHidden -> setState { copy(passwordHidden = !getState().passwordHidden) }
+            is LoginEvent.TogglePasswordHidden -> setState { copy(passwordHidden = !passwordHidden) }
         }
     }
 }
