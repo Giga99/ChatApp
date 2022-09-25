@@ -4,14 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.medium.client.common.core.Result
 import com.medium.client.common.ui.BaseViewModel
 import com.medium.client.domain.models.requests.RegisterRequest
-import com.medium.client.domain.usecases.RegisterUserUseCase
+import com.medium.client.domain.usecases.RegisterUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase
+    private val registerUser: RegisterUser
 ) : BaseViewModel<RegisterViewState, RegisterEvent, RegisterSideEffect>(RegisterViewState()) {
 
     override fun onEvent(event: RegisterEvent) {
@@ -23,7 +23,7 @@ class RegisterViewModel @Inject constructor(
             is RegisterEvent.RegisterButtonClicked, RegisterEvent.DoneButtonClicked -> {
                 setState { copy(registerResult = Result.Loading()) }
                 viewModelScope.launch {
-                    val result = registerUserUseCase(
+                    val result = registerUser(
                         RegisterRequest(
                             username = getState().username,
                             email = getState().email,

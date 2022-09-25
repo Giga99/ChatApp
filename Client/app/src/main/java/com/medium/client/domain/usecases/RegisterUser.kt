@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class RegisterUserUseCase @Inject constructor(
+class RegisterUser @Inject constructor(
     private val authRepository: AuthRepository
 ) {
 
