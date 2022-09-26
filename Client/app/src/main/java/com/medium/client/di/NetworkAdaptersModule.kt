@@ -1,5 +1,6 @@
 package com.medium.client.di
 
+import com.medium.client.data.remote.adapters.MoshiInstantAdapter
 import com.medium.client.data.remote.adapters.MoshiUnitAdapter
 import com.squareup.moshi.JsonAdapter
 import dagger.Binds
@@ -15,4 +16,8 @@ interface NetworkAdaptersModule {
     @Binds
     @IntoSet
     abstract fun bindMoshiUnitAdapter(adapter: MoshiUnitAdapter): JsonAdapter<*>
+
+    @Binds
+    @IntoSet
+    abstract fun bindMoshiInstantAdapter(adapter: MoshiInstantAdapter): JsonAdapter<*>
 }

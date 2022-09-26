@@ -12,6 +12,8 @@ import com.medium.client.data.remote.api_handler.ApiHandler
 import com.medium.client.data.remote.api_handler.ApiHandlerImpl
 import com.medium.client.data.remote.interceptors.AuthInterceptorImpl
 import com.medium.client.data.remote.services.AuthApiService
+import com.medium.client.data.remote.services.ChatsApiService
+import com.medium.client.data.remote.services.UsersApiService
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -23,6 +25,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -82,7 +85,19 @@ object DataModule {
     @Provides
     fun provideAuthApiService(
         retrofit: Retrofit
-    ): AuthApiService = retrofit.create(AuthApiService::class.java)
+    ): AuthApiService = retrofit.create()
+
+    @Singleton
+    @Provides
+    fun provideUsersApiService(
+        retrofit: Retrofit
+    ): UsersApiService = retrofit.create()
+
+    @Singleton
+    @Provides
+    fun provideChatsApiService(
+        retrofit: Retrofit
+    ): ChatsApiService = retrofit.create()
 
     @Singleton
     @Provides

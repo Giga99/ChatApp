@@ -19,16 +19,15 @@ class AuthRepositoryImpl @Inject constructor(
     private val apiHandler: ApiHandlerImpl
 ) : AuthRepository {
 
-    override suspend fun register(registerRequest: RegisterRequest): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            val response =
-                apiHandler.handleCall { authApiService.register(registerRequest.toBody()) }
+    override suspend fun register(registerRequest: RegisterRequest): Result<Unit> {
+        val response =
+            apiHandler.handleCall { authApiService.register(registerRequest.toBody()) }
 
-            response.data?.let { authResponse ->
-                chatAppDataStore.setTokens(authResponse)
-                Result.Success(Unit)
-            } ?: Result.Error(response.message ?: "")
-        }
+        return response.data?.let { authResponse ->
+            chatAppDataStore.setTokens(authResponse)
+            Result.Success(Unit)
+        } ?: Result.Error(response.message ?: "")
+    }
 
     override suspend fun login(loginRequest: LoginRequest): Result<Unit> =
         withContext(Dispatchers.IO) {
