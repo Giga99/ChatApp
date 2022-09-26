@@ -1,7 +1,7 @@
 package com.medium.client.presentation.home
 
 sealed class HomeEvent {
-
+    object SearchButtonClicked : HomeEvent()
 }
 
 sealed class HomeSideEffect {
@@ -13,6 +13,6 @@ data class HomeViewState(
 ) {
 
     enum class HomeScreenTab {
-        All
+        All, Unread
     }
 }

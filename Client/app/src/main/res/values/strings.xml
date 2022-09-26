@@ -15,4 +15,6 @@
     <string name="email">Email</string>
     <string name="register">Register</string>
     <string name="confirm_password">Confirm Password</string>
+
+    <string name="chats">Chats</string>
 </resources>
