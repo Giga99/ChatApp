@@ -34,7 +34,7 @@ data class ChatSocket(
         user2Connected = true
     }
 
-    fun isChatForUser(user1: String): Boolean = this.user1 == user1 || this.user2 == user1
+    fun isChatForUser(user: String): Boolean = this.user1 == user || this.user2 == user
 
     fun isCorrectChat(user1: String, user2: String): Boolean =
         this.user1 == user1 && this.user2 == user2 || this.user1 == user2 && this.user2 == user1
