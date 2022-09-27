@@ -8,6 +8,8 @@ class UsersController(
     private val userDataSource: UserDataSource
 ) {
 
+    suspend fun getUserDetails(username: String): UserDto? = userDataSource.getUserByUsername(username)?.toDto()
+
     suspend fun searchUsers(query: String): List<UserDto> =
         userDataSource.searchUsersByUsername(query).map { it.toDto() }
 }

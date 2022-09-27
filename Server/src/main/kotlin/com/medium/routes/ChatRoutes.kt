@@ -40,6 +40,7 @@ fun Route.getAllChats(chatController: ChatController) {
         }
 
         val response = chatController.getAllChatsForUser(username = username)
+
         val status = HttpStatusCode.OK
         call.respond(
             status = status,
@@ -50,14 +51,6 @@ fun Route.getAllChats(chatController: ChatController) {
 
 fun Route.getAllMessages(chatController: ChatController) {
     post("messages") {
-        val username = call.principal<JWTPrincipal>()?.getClaim("username", String::class) ?: kotlin.run {
-            val status = HttpStatusCode.BadRequest
-            call.respond(
-                status = status,
-                message = status.toBasicResponse<Unit>()
-            )
-            return@post
-        }
         val request = call.receiveNullable<GetAllMessagesRequest>() ?: kotlin.run {
             val status = HttpStatusCode.BadRequest
             call.respond(
@@ -67,7 +60,8 @@ fun Route.getAllMessages(chatController: ChatController) {
             return@post
         }
 
-        val response = chatController.getAllMessages(user1 = username, user2 = request.participant)
+        val response = chatController.getAllMessages(chatId = request.chatId)
+
         val status = HttpStatusCode.OK
         call.respond(
             status = status,

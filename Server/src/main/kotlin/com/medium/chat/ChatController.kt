@@ -72,9 +72,9 @@ class ChatController(
         }
 
     suspend fun getAllMessages(
-        user1: String,
-        user2: String
-    ): List<MessageDto> = messageDataSource.getAllMessages(user1, user2).map { it.toDto() }
+        chatId: String
+    ): List<MessageDto> =
+        chats[chatId]?.let { messageDataSource.getAllMessages(it.user1, it.user2).map { it.toDto() } } ?: emptyList()
 
     suspend fun tryDisconnect(
         currentUser: String,
