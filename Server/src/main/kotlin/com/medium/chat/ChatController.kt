@@ -66,8 +66,7 @@ class ChatController(
     }
 
     suspend fun getAllChatsForUser(username: String): List<ChatDto> =
-        chats.filter { it.value.isChatForUser(username) }.toList().map { pair ->
-            val chat = pair.second
+        chatDataSource.getAllChats(username).map { chat ->
             val lastMessage = messageDataSource.getLastMessage(chat.user1, chat.user2).toDto()
             chat.toDto(lastMessage = lastMessage)
         }
