@@ -1,5 +1,6 @@
 package com.medium.data.chat
 
+import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
@@ -24,6 +25,8 @@ class MongoChatDataSource(
             and(Chat::user1 eq user2, Chat::user2 eq user1)
         )
     )
+
+    override suspend fun getChat(chatId: ObjectId): Chat? = chats.findOne(Chat::id eq chatId)
 
     override suspend fun insertChat(chat: Chat): Boolean = chats.insertOne(chat).wasAcknowledged()
 }

@@ -8,6 +8,7 @@ import com.medium.data.message.MessageDataSource
 import com.medium.data.responses.ChatDto
 import com.medium.data.responses.MessageDto
 import io.ktor.websocket.*
+import org.bson.types.ObjectId
 import java.util.concurrent.ConcurrentHashMap
 
 class ChatController(
@@ -74,7 +75,9 @@ class ChatController(
     suspend fun getAllMessages(
         chatId: String
     ): List<MessageDto> =
-        chats[chatId]?.let { messageDataSource.getAllMessages(it.user1, it.user2).map { it.toDto() } } ?: emptyList()
+        chatDataSource.getChat(ObjectId(chatId))?.let {
+            messageDataSource.getAllMessages(it.user1, it.user2).map { it.toDto() }
+        } ?: emptyList()
 
     suspend fun tryDisconnect(
         currentUser: String,
