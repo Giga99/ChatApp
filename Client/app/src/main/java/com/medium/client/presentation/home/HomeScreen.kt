@@ -1,11 +1,12 @@
 package com.medium.client.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -14,11 +15,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.*
 import com.medium.client.R
+import com.medium.client.common.core.Result
+import com.medium.client.common.ui.toPrettierDateFormat
+import com.medium.client.domain.models.ui.ChatModel
 import com.medium.client.presentation.home.HomeViewState.HomeScreenTab
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -32,7 +35,15 @@ fun HomeScreen(
     val viewState = homeViewModel.viewState.collectAsState().value
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
-    val tabs = enumValues<HomeScreenTab>()
+    val tabs = viewState.chats.keys.toList()
+    val pages = viewState.chats.values.toList()
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .collect { page ->
+                homeViewModel.onEvent(HomeEvent.PageChanged(tabs[page]))
+            }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -40,7 +51,12 @@ fun HomeScreen(
             HomeScreenTopBar(
                 tabs = tabs,
                 pagerState = pagerState,
-                scope = coroutineScope
+                onTabClick = { index ->
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(page = index)
+                    }
+                    homeViewModel.onEvent(HomeEvent.OnTabClicked(tabs[index]))
+                }
             )
         }
     ) { innerPadding ->
@@ -52,27 +68,119 @@ fun HomeScreen(
             HorizontalPager(
                 count = tabs.size,
                 state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { currentPage ->
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = tabs[currentPage].name,
-                        style = MaterialTheme.typography.h2
-                    )
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = dimensionResource(R.dimen.size_16))
+            ) { currentPageIndex ->
+                when (val currentPage = pages[currentPageIndex]) {
+                    is Result.Success -> {
+                        ChatsSuccess(
+                            chats = currentPage.data ?: emptyList(),
+                            onRowClick = { homeViewModel.onEvent(HomeEvent.OnChatRowClicked(it)) }
+                        )
+                    }
+                    is Result.Error -> {
+                        ChatsError(errorMessage = currentPage.message ?: "")
+                    }
+                    is Result.Loading -> {
+                        ChatsLoading()
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun ChatsSuccess(
+    chats: List<ChatModel>,
+    onRowClick: (ChatModel) -> Unit
+) {
+    if (chats.isEmpty()) {
+        Text(
+            text = stringResource(R.string.no_chats),
+            style = MaterialTheme.typography.h6
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(
+                items = chats,
+                key = { it.id }
+            ) {
+                ChatRow(
+                    chatModel = it,
+                    onRowClick = onRowClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ChatRow(
+    chatModel: ChatModel,
+    onRowClick: (ChatModel) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onRowClick(chatModel) }
+            .padding(dimensionResource(R.dimen.size_16))
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = chatModel.user1,
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onBackground
+                )
+                Text(
+                    text = chatModel.lastMessage.timestamp.toPrettierDateFormat(),
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.secondaryVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.size_8)))
+            Text(
+                text = chatModel.lastMessage.text,
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground
+            )
+        }
+    }
+}
+
+@Composable
+fun ChatsError(
+    errorMessage: String
+) {
+    Text(
+        text = errorMessage,
+        style = MaterialTheme.typography.h6,
+        color = MaterialTheme.colors.error
+    )
+}
+
+@Composable
+fun ColumnScope.ChatsLoading() {
+    CircularProgressIndicator(
+        modifier = Modifier
+            .padding(dimensionResource(R.dimen.size_16))
+            .align(Alignment.CenterHorizontally)
+    )
+}
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreenTopBar(
-    tabs: Array<HomeScreenTab>,
+    tabs: List<HomeScreenTab>,
     pagerState: PagerState,
-    scope: CoroutineScope
+    onTabClick: (Int) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -110,7 +218,7 @@ fun HomeScreenTopBar(
             ChatTabs(
                 tabs = tabs,
                 pagerState = pagerState,
-                scope = scope
+                onTabClick = onTabClick
             )
         }
     }
@@ -119,9 +227,9 @@ fun HomeScreenTopBar(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ChatTabs(
-    tabs: Array<HomeScreenTab>,
+    tabs: List<HomeScreenTab>,
     pagerState: PagerState,
-    scope: CoroutineScope
+    onTabClick: (Int) -> Unit
 ) {
     TabRow(
         selectedTabIndex = pagerState.currentPage,
@@ -138,11 +246,7 @@ fun ChatTabs(
         tabs.forEachIndexed { index, item ->
             Tab(
                 selected = pagerState.currentPage == index,
-                onClick = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(page = index)
-                    }
-                },
+                onClick = { onTabClick(index) },
                 selectedContentColor = MaterialTheme.colors.onPrimary,
                 unselectedContentColor = MaterialTheme.colors.primaryVariant,
                 text = {
