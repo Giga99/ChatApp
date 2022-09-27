@@ -1,6 +1,7 @@
 package com.medium.client.presentation.home
 
 import androidx.lifecycle.viewModelScope
+import com.medium.client.common.core.Result
 import com.medium.client.common.ui.BaseViewModel
 import com.medium.client.domain.repositories.ChatsRepository
 import com.medium.client.domain.repositories.UsersRepository
@@ -17,8 +18,14 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val userDetailsResult = usersRepository.getUserDetails()
+            if (userDetailsResult is Result.Success) {
+                setState { copy(currentUser = userDetailsResult.data!!.username) }
+            }
+        }
+
+        viewModelScope.launch {
             val chats = chatsRepository.getAllChats()
-            println(chats)
             setState {
                 copy(chats = enumValues<HomeScreenTab>().associateWith { chats })
             }
@@ -35,7 +42,12 @@ class HomeViewModel @Inject constructor(
                 setState { copy(selectedTab = event.tab) }
             }
             is HomeEvent.OnChatRowClicked ->
-                _sideEffects.trySend(HomeSideEffect.NavigateToChat(event.chat.id))
+                _sideEffects.trySend(
+                    HomeSideEffect.NavigateToChat(
+                        chatId = event.chat.id,
+                        participant = if (getState().currentUser == event.chat.user1) event.chat.user2 else event.chat.user1
+                    )
+                )
         }
     }
 }

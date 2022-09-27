@@ -7,6 +7,9 @@ import retrofit2.http.Query
 
 interface UsersApiService {
 
+    @GET("users/userDetails")
+    suspend fun getUserDetails(): ApiResponse<UserResponse>
+
     @GET("users/search")
     suspend fun searchUsers(
         @Query(value = "query") query: String

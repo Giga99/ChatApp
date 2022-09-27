@@ -18,6 +18,7 @@ import com.medium.client.R
 import com.medium.client.common.core.Result
 import com.medium.client.common.ui.toPrettierDateFormat
 import com.medium.client.domain.models.ui.ChatModel
+import com.medium.client.presentation.destinations.ChatScreenDestination
 import com.medium.client.presentation.home.HomeViewState.HomeScreenTab
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -43,6 +44,20 @@ fun HomeScreen(
             .collect { page ->
                 homeViewModel.onEvent(HomeEvent.PageChanged(tabs[page]))
             }
+    }
+
+    LaunchedEffect(homeViewModel.sideEffects) {
+        homeViewModel.sideEffects.collect { sideEffect ->
+            when (sideEffect) {
+                is HomeSideEffect.NavigateToChat ->
+                    navigator.navigate(
+                        ChatScreenDestination(
+                            chatId = sideEffect.chatId,
+                            participant = sideEffect.participant
+                        )
+                    )
+            }
+        }
     }
 
     Scaffold(
@@ -75,6 +90,7 @@ fun HomeScreen(
                 when (val currentPage = pages[currentPageIndex]) {
                     is Result.Success -> {
                         ChatsSuccess(
+                            currentUser = viewState.currentUser,
                             chats = currentPage.data ?: emptyList(),
                             onRowClick = { homeViewModel.onEvent(HomeEvent.OnChatRowClicked(it)) }
                         )
@@ -93,6 +109,7 @@ fun HomeScreen(
 
 @Composable
 fun ChatsSuccess(
+    currentUser: String,
     chats: List<ChatModel>,
     onRowClick: (ChatModel) -> Unit
 ) {
@@ -110,6 +127,7 @@ fun ChatsSuccess(
                 key = { it.id }
             ) {
                 ChatRow(
+                    currentUser = currentUser,
                     chatModel = it,
                     onRowClick = onRowClick
                 )
@@ -120,6 +138,7 @@ fun ChatsSuccess(
 
 @Composable
 fun ChatRow(
+    currentUser: String,
     chatModel: ChatModel,
     onRowClick: (ChatModel) -> Unit
 ) {
@@ -135,7 +154,7 @@ fun ChatRow(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = chatModel.user1,
+                    text = if (currentUser == chatModel.user1) chatModel.user2 else chatModel.user1,
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackground
                 )

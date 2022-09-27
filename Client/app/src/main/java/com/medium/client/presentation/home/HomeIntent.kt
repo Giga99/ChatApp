@@ -12,7 +12,7 @@ sealed class HomeEvent {
 }
 
 sealed class HomeSideEffect {
-    data class NavigateToChat(val chatId: String) : HomeSideEffect()
+    data class NavigateToChat(val chatId: String, val participant: String) : HomeSideEffect()
 }
 
 data class HomeViewState(
