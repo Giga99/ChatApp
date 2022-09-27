@@ -149,7 +149,7 @@ fun ChatRow(
             Text(
                 text = chatModel.lastMessage.text,
                 style = MaterialTheme.typography.body1,
-                color = MaterialTheme.colors.onBackground
+                color = MaterialTheme.colors.secondaryVariant
             )
         }
     }
