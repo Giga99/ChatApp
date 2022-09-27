@@ -13,7 +13,9 @@ private val DATE_TIME_FORMATTER_TIME =
     DateTimeFormatter.ofPattern("h:mm a").withZone(ZoneId.systemDefault())
 
 fun Instant.toPrettierDateFormat(): String =
-    if (this.atZone(ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now()))
-        DATE_TIME_FORMATTER_TIME.format(this)
-    else
-        DATE_TIME_FORMATTER_DATE.format(this)
+    if (this.atZone(ZoneId.systemDefault()).toLocalDate().isEqual(LocalDate.now())) this.toTime()
+    else this.toDate()
+
+fun Instant.toTime(): String = DATE_TIME_FORMATTER_TIME.format(this)
+
+fun Instant.toDate(): String = DATE_TIME_FORMATTER_DATE.format(this)

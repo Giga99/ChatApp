@@ -6,6 +6,7 @@ buildscript {
         lifecycleKtxVersion = '2.5.1'
         activityComposeVersion = '1.6.0'
         androidxLifecycleVersion = '2.5.1'
+        constraintLayoutVersion = '1.0.1'
 
         // Dagger-Hilt
         hiltVersion = '2.42'

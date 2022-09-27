@@ -5,6 +5,8 @@ import com.medium.client.domain.models.ui.MessageModel
 
 sealed class ChatEvent {
     object BackButtonClicked : ChatEvent()
+    data class OnMessageInputChange(val message: String) : ChatEvent()
+    object SendMessage : ChatEvent()
 }
 
 sealed class ChatSideEffect {
@@ -14,5 +16,11 @@ sealed class ChatSideEffect {
 data class ChatViewState(
     val currentUser: String = "",
     val participant: String = "",
+    val nextMessage: String = "",
     val messages: Result<List<MessageModel>> = Result.Loading()
+)
+
+data class ChatScreenNavArgs(
+    val chatId: String,
+    val participant: String
 )

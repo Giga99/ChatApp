@@ -19,8 +19,8 @@ class ChatViewModel @Inject constructor(
 ) : BaseViewModel<ChatViewState, ChatEvent, ChatSideEffect>(ChatViewState()) {
 
     init {
-        val (chatId, participant) = ChatScreenDestination.argsFrom(savedStateHandle)
-        setState { copy(participant = participant) }
+        val navArgs = ChatScreenDestination.argsFrom(savedStateHandle)
+        setState { copy(participant = navArgs.participant) }
 
         viewModelScope.launch {
             dataStoreRepository.observeUsername().collect {
@@ -31,7 +31,7 @@ class ChatViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val messages = chatsRepository.getAllMessages(GetAllMessagesRequest(chatId))
+            val messages = chatsRepository.getAllMessages(GetAllMessagesRequest(navArgs.chatId))
             setState { copy(messages = messages) }
         }
     }
@@ -39,6 +39,8 @@ class ChatViewModel @Inject constructor(
     override fun onEvent(event: ChatEvent) {
         when (event) {
             is ChatEvent.BackButtonClicked -> _sideEffects.trySend(ChatSideEffect.NavigateBack)
+            is ChatEvent.OnMessageInputChange -> setState { copy(nextMessage = event.message) }
+            is ChatEvent.SendMessage -> {}
         }
     }
 }
