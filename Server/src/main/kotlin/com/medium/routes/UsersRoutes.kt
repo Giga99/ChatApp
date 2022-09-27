@@ -15,6 +15,7 @@ fun Route.usersRoutes() {
 
     route("users/") {
         authenticate {
+            getUserDetails(usersController = usersController)
             searchUsers(usersController = usersController)
         }
     }
