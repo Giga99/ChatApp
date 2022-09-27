@@ -2,6 +2,9 @@
     <string name="app_name">ChatApp</string>
     <string name="base_url">http://10.0.2.2:8080/</string>
 
+    <string name="connecting">Connecting…</string>
+    <string name="connection_not_available">Internet connection not available</string>
+
     <string name="welcome_to_chat_app">Welcome to the ChatApp!</string>
     <string name="login_credentials">Login with your credentials</string>
     <string name="username">Username</string>

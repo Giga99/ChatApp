@@ -1,6 +1,6 @@
 package com.medium.client.data.remote.interceptors
 
-import com.medium.client.common.wrappers.session_manager.ChatAppSessionManager
+import com.medium.client.common.wrappers.session_manager.SessionManager
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -9,24 +9,24 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class AuthInterceptorImpl @Inject constructor(
-    private val chatAppSessionManager: Provider<ChatAppSessionManager>
+    private val sessionManager: Provider<SessionManager>
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        var accessToken = chatAppSessionManager.get().getAccessToken()
+        var accessToken = sessionManager.get().getAccessToken()
 
         val response = chain.proceed(newRequestWithAccessToken(accessToken, request))
 
         if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
             synchronized(this) {
-                val newAccessToken = chatAppSessionManager.get().getAccessToken()
+                val newAccessToken = sessionManager.get().getAccessToken()
                 if (newAccessToken != accessToken) {
                     return chain.proceed(newRequestWithAccessToken(newAccessToken, request))
                 } else {
                     accessToken = refreshToken()
                     if (accessToken.isNullOrBlank()) {
-                        chatAppSessionManager.get().logout()
+                        sessionManager.get().logout()
                         return response
                     }
                     return chain.proceed(newRequestWithAccessToken(accessToken, request))
@@ -43,9 +43,9 @@ class AuthInterceptorImpl @Inject constructor(
             .build()
 
     private fun refreshToken(): String? {
-        val refreshToken: String? = chatAppSessionManager.get().getRefreshToken()
+        val refreshToken: String? = sessionManager.get().getRefreshToken()
         refreshToken?.let {
-            return chatAppSessionManager.get().refreshToken(it)
+            return sessionManager.get().refreshToken(it)
         } ?: return null
     }
 }

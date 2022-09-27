@@ -5,6 +5,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
     primary = ChathamsBlue,
@@ -13,7 +14,9 @@ private val DarkColorPalette = darkColors(
     secondary = Solitude,
     secondaryVariant = Gray,
     background = White,
-    onBackground = Black
+    onBackground = Black,
+    error = Red,
+    onError = Orange
 )
 
 private val LightColorPalette = lightColors(
@@ -23,7 +26,9 @@ private val LightColorPalette = lightColors(
     secondary = Solitude,
     secondaryVariant = Gray,
     background = White,
-    onBackground = Black
+    onBackground = Black,
+    error = Red,
+    onError = Orange
 
     /* Other default colors to override
     background = Color.White,
@@ -43,6 +48,8 @@ fun ChatAppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
 //        LightColorPalette
 //    }
     val colors = LightColorPalette
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(colors.primary)
 
     MaterialTheme(
         colors = colors,

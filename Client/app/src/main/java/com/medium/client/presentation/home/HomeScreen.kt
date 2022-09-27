@@ -124,7 +124,6 @@ fun ChatTabs(
     scope: CoroutineScope
 ) {
     TabRow(
-        modifier = Modifier.wrapContentWidth(),
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
@@ -138,9 +137,6 @@ fun ChatTabs(
     ) {
         tabs.forEachIndexed { index, item ->
             Tab(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = dimensionResource(R.dimen.size_4)),
                 selected = pagerState.currentPage == index,
                 onClick = {
                     scope.launch {

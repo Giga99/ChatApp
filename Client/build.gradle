@@ -34,7 +34,8 @@ buildscript {
         kotlinSerializationJsonVersion = '1.3.2'
 
         // Accompanist
-        accompanistPagerVersion = '0.23.1'
+        accompanistPagerVersion = '0.25.1'
+        accompanistSystemUiControllerVersion = '0.25.1'
 
         // Tests
         junitVersion = '4.13.2'

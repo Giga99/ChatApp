@@ -110,4 +110,5 @@ dependencies {
     // Accompanist
     implementation "com.google.accompanist:accompanist-pager:$accompanistPagerVersion"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanistPagerVersion"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanistSystemUiControllerVersion"
 }
