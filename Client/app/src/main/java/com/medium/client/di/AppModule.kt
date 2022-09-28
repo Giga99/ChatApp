@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import com.medium.client.R
 import com.medium.client.common.annotations.BaseUrl
+import com.medium.client.common.annotations.ChatWebSocketUrl
 import com.medium.client.common.wrappers.connectivity.NetworkConnectivityManager
 import com.medium.client.common.wrappers.connectivity.NetworkConnectivityManagerImpl
 import com.medium.client.common.wrappers.session_manager.SessionManager
@@ -27,6 +28,13 @@ object AppModule {
     fun provideBaseUrl(
         @ApplicationContext context: Context
     ): String = context.getString(R.string.base_url)
+
+    @Singleton
+    @ChatWebSocketUrl
+    @Provides
+    fun provideChatWebSocketUrl(
+        @ApplicationContext context: Context
+    ): String = "${context.getString(R.string.base_url)}messaging/chat-socket"
 
     @Singleton
     @Provides

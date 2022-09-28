@@ -76,7 +76,6 @@ dependencies {
     // Compose dependencies
     implementation "androidx.compose.material:material-icons-extended:$composeVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidxLifecycleVersion"
-    implementation "androidx.constraintlayout:constraintlayout-compose:$constraintLayoutVersion"
 
     //Dagger - Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"

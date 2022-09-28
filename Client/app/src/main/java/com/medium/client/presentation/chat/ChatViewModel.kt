@@ -40,7 +40,13 @@ class ChatViewModel @Inject constructor(
         when (event) {
             is ChatEvent.BackButtonClicked -> _sideEffects.trySend(ChatSideEffect.NavigateBack)
             is ChatEvent.OnMessageInputChange -> setState { copy(nextMessage = event.message) }
-            is ChatEvent.SendMessage -> {}
+            is ChatEvent.SendMessage -> {
+                println("SEND MESSAGE: ${getState().nextMessage}")
+                viewModelScope.launch {
+//                    chatsRepository.sendMessage(MessageRequest(getState().nextMessage))
+                    setState { copy(nextMessage = "") }
+                }
+            }
         }
     }
 }
