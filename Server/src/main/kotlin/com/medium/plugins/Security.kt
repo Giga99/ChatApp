@@ -1,11 +1,9 @@
 package com.medium.plugins
 
 import com.medium.security.manager.TokensManager
-import com.medium.session.ChatSession
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
 
 fun Application.configureSecurity() {
@@ -21,9 +19,5 @@ fun Application.configureSecurity() {
                 else null
             }
         }
-    }
-
-    install(Sessions) {
-        cookie<ChatSession>("chat_session")
     }
 }
