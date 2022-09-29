@@ -3,6 +3,7 @@ package com.medium.client.common.wrappers.session_manager
 import com.medium.client.data.local.data_store.ChatAppDataStore
 import com.medium.client.data.local.data_store.DataStoreKeys
 import com.medium.client.domain.repositories.AuthRepository
+import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,7 +28,7 @@ interface SessionManager {
 
 class SessionManagerImpl @Inject constructor(
     private val chatAppDataStore: ChatAppDataStore,
-    private val authRepository: AuthRepository
+    private val authRepository: Lazy<AuthRepository>
 ) : SessionManager {
 
     override fun getAccessToken(): String? = runBlocking {
@@ -43,7 +44,7 @@ class SessionManagerImpl @Inject constructor(
     }
 
     override fun refreshToken(refreshToken: String): String? = runBlocking {
-        authRepository.refreshToken(refreshToken)
+        authRepository.get().refreshToken(refreshToken)
         getAccessToken()
     }
 

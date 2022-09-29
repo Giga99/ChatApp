@@ -45,7 +45,7 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += '/META-INF/*'
         }
     }
     namespace 'com.medium.client'
@@ -86,18 +86,6 @@ dependencies {
     // Timber
     implementation "com.jakewharton.timber:timber:$timberVersion"
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
-
-    // OkHttp
-    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
-
-    // Moshi
-    implementation "com.squareup.moshi:moshi:$moshiVersion"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
-
     // DataStore
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
 
@@ -107,6 +95,15 @@ dependencies {
     // Compose Destinations
     implementation "io.github.raamcosta.compose-destinations:core:$composeDestinationsVersion"
     ksp "io.github.raamcosta.compose-destinations:ksp:$composeDestinationsVersion"
+
+    // Ktor
+    implementation "io.ktor:ktor-client-core:$ktorVersion"
+    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+    implementation "io.ktor:ktor-client-okhttp:$ktorVersion"
+    implementation "io.ktor:ktor-client-auth:$ktorVersion"
+    implementation "io.ktor:ktor-client-serialization:$ktorVersion"
+    implementation "io.ktor:ktor-client-websockets:$ktorVersion"
+    implementation "io.ktor:ktor-client-logging:$ktorVersion"
 
     // Accompanist
     implementation "com.google.accompanist:accompanist-pager:$accompanistPagerVersion"

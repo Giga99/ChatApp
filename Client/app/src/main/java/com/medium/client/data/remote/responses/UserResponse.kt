@@ -1,8 +1,8 @@
 package com.medium.client.data.remote.responses
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class UserResponse(
     val id: String,
     val username: String,

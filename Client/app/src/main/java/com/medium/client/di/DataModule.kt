@@ -5,27 +5,33 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.medium.client.common.annotations.BaseUrl
+import com.medium.client.common.annotations.Host
+import com.medium.client.common.annotations.Port
+import com.medium.client.common.wrappers.session_manager.SessionManager
 import com.medium.client.data.local.data_store.ChatAppDataStore
 import com.medium.client.data.local.data_store.ChatAppDataStoreImpl
 import com.medium.client.data.remote.api_handler.ApiHandler
 import com.medium.client.data.remote.api_handler.ApiHandlerImpl
-import com.medium.client.data.remote.interceptors.AuthInterceptorImpl
-import com.medium.client.data.remote.services.AuthApiService
-import com.medium.client.data.remote.services.ChatsApiService
-import com.medium.client.data.remote.services.UsersApiService
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
+import com.medium.client.data.remote.services.auth.AuthService
+import com.medium.client.data.remote.services.auth.AuthServiceImpl
+import com.medium.client.data.remote.services.chats.ChatsService
+import com.medium.client.data.remote.services.chats.ChatsServiceImpl
+import com.medium.client.data.remote.services.users.UsersService
+import com.medium.client.data.remote.services.users.UsersServiceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
+import io.ktor.client.features.auth.*
+import io.ktor.client.features.auth.providers.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
+import io.ktor.http.*
 import javax.inject.Singleton
 
 @Module
@@ -48,60 +54,70 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideMoshi(
-        adapters: Set<@JvmSuppressWildcards JsonAdapter<*>>
-    ): Moshi = Moshi.Builder()
-        .apply { adapters.forEach { adapter -> add(adapter) } }
-        .build()
+    fun provideHttpClient(
+        @Host host: String,
+        @Port port: Int,
+        sessionManager: SessionManager
+    ): HttpClient = HttpClient(CIO) {
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
+        }
+//        install(WebSockets)
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    val refreshToken = sessionManager.getRefreshToken() ?: ""
+                    if (refreshToken.isBlank()) sessionManager.logout()
+                    BearerTokens(
+                        accessToken = sessionManager.getAccessToken() ?: "",
+                        refreshToken = refreshToken
+                    )
+                }
+                refreshTokens {
+                    val refreshToken = sessionManager.getRefreshToken() ?: ""
+                    if (refreshToken.isBlank()) sessionManager.logout()
+                    val accessToken = sessionManager.refreshToken(refreshToken) ?: ""
+                    if (accessToken.isBlank()) sessionManager.logout()
+                    BearerTokens(
+                        accessToken = accessToken,
+                        refreshToken = refreshToken
+                    )
+                }
+            }
+        }
+        install(DefaultRequest) {
+            url {
+                this.host = host
+                this.port = port
+                this.protocol = URLProtocol.HTTP
+            }
+            contentType(ContentType.Application.Json)
+        }
+    }
 
     @Singleton
     @Provides
-    fun provideMoshiConverterFactory(
-        moshi: Moshi
-    ): MoshiConverterFactory = MoshiConverterFactory.create(moshi)
+    fun provideAuthService(
+        client: HttpClient
+    ): AuthService = AuthServiceImpl(client = client)
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(
-        authInterceptorImpl: AuthInterceptorImpl,
-    ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().setLevel(level = HttpLoggingInterceptor.Level.BODY))
-        .addInterceptor(authInterceptorImpl)
-        .build()
+    fun provideUsersService(
+        client: HttpClient
+    ): UsersService = UsersServiceImpl(client = client)
 
     @Singleton
     @Provides
-    fun provideRetrofit(
-        @BaseUrl apiUrl: String,
-        okHttpClient: OkHttpClient,
-        moshiConverterFactory: MoshiConverterFactory
-    ): Retrofit = Retrofit.Builder()
-        .baseUrl(apiUrl)
-        .client(okHttpClient)
-        .addConverterFactory(moshiConverterFactory)
-        .build()
+    fun provideChatsService(
+        client: HttpClient
+    ): ChatsService = ChatsServiceImpl(client = client)
 
     @Singleton
     @Provides
-    fun provideAuthApiService(
-        retrofit: Retrofit
-    ): AuthApiService = retrofit.create()
-
-    @Singleton
-    @Provides
-    fun provideUsersApiService(
-        retrofit: Retrofit
-    ): UsersApiService = retrofit.create()
-
-    @Singleton
-    @Provides
-    fun provideChatsApiService(
-        retrofit: Retrofit
-    ): ChatsApiService = retrofit.create()
-
-    @Singleton
-    @Provides
-    fun provideApiHandler(
-        moshi: Moshi
-    ): ApiHandler = ApiHandlerImpl(moshi = moshi)
+    fun provideApiHandler(): ApiHandler = ApiHandlerImpl()
 }

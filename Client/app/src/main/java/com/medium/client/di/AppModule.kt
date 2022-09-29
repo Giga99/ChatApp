@@ -3,14 +3,15 @@ package com.medium.client.di
 import android.content.Context
 import android.net.ConnectivityManager
 import com.medium.client.R
-import com.medium.client.common.annotations.BaseUrl
-import com.medium.client.common.annotations.ChatWebSocketUrl
+import com.medium.client.common.annotations.Host
+import com.medium.client.common.annotations.Port
 import com.medium.client.common.wrappers.connectivity.NetworkConnectivityManager
 import com.medium.client.common.wrappers.connectivity.NetworkConnectivityManagerImpl
 import com.medium.client.common.wrappers.session_manager.SessionManager
 import com.medium.client.common.wrappers.session_manager.SessionManagerImpl
 import com.medium.client.data.local.data_store.ChatAppDataStore
 import com.medium.client.domain.repositories.AuthRepository
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,24 +24,31 @@ import javax.inject.Singleton
 object AppModule {
 
     @Singleton
-    @BaseUrl
+    @Host
+    @Provides
+    fun provideHost(
+        @ApplicationContext context: Context
+    ): String = context.getString(R.string.host)
+
+    @Singleton
+    @Port
     @Provides
     fun provideBaseUrl(
         @ApplicationContext context: Context
-    ): String = context.getString(R.string.base_url)
+    ): Int = context.getString(R.string.port).toInt()
 
-    @Singleton
-    @ChatWebSocketUrl
-    @Provides
-    fun provideChatWebSocketUrl(
-        @ApplicationContext context: Context
-    ): String = "${context.getString(R.string.base_url)}messaging/chat-socket"
+//    @Singleton
+//    @ChatWebSocketUrl
+//    @Provides
+//    fun provideChatWebSocketUrl(
+//        @ApplicationContext context: Context
+//    ): String = "${context.getString(R.string.base_url)}messaging/chat-socket"
 
     @Singleton
     @Provides
     fun provideSessionManager(
         chatAppDataStore: ChatAppDataStore,
-        authRepository: AuthRepository
+        authRepository: Lazy<AuthRepository>
     ): SessionManager = SessionManagerImpl(
         chatAppDataStore = chatAppDataStore,
         authRepository = authRepository

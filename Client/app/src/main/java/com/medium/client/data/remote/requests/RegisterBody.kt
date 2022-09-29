@@ -1,8 +1,8 @@
 package com.medium.client.data.remote.requests
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class RegisterBody(
     val username: String,
     val email: String,

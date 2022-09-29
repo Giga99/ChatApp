@@ -14,15 +14,6 @@ buildscript {
         // Timber
         timberVersion = '5.0.1'
 
-        // Retrofit
-        retrofitVersion = '2.9.0'
-
-        // OkHttp
-        okHttpVersion = '5.0.0-alpha.3'
-
-        // Moshi
-        moshiVersion = '1.13.0'
-
         // DataStore
         dataStoreVersion = '1.0.0'
 
@@ -36,6 +27,10 @@ buildscript {
         // Accompanist
         accompanistPagerVersion = '0.25.1'
         accompanistSystemUiControllerVersion = '0.25.1'
+
+        // Ktor
+        ktorVersion = "1.6.3"
+        logbackVersion = "1.4.1"
 
         // Tests
         junitVersion = '4.13.2'
