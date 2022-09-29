@@ -1,7 +1,6 @@
 package com.medium.routes
 
 import com.medium.chat.ChatController
-import com.medium.data.requests.ChatRequest
 import com.medium.data.requests.GetAllMessagesRequest
 import com.medium.utils.toBasicResponse
 import io.ktor.http.*
@@ -23,6 +22,10 @@ fun Route.chatRoutes() {
         authenticate {
             getAllChats(chatController = chatController)
             getAllMessages(chatController = chatController)
+        }
+    }
+    route("ws/") {
+        authenticate {
             chatSocket(chatController = chatController)
         }
     }
@@ -77,8 +80,8 @@ fun Route.chatSocket(chatController: ChatController) {
             close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized"))
             return@webSocket
         }
-        val participant = call.receiveNullable<ChatRequest>()?.participant ?: kotlin.run {
-            println("NO REQUEST")
+        val participant = call.parameters["participant"] ?: kotlin.run {
+            println("NO QUERY PARAM")
             close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Bad request"))
             return@webSocket
         }
