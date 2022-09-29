@@ -70,18 +70,15 @@ object DataModule {
         install(Auth) {
             bearer {
                 loadTokens {
-                    val refreshToken = sessionManager.getRefreshToken() ?: ""
-                    if (refreshToken.isBlank()) sessionManager.logout()
                     BearerTokens(
                         accessToken = sessionManager.getAccessToken() ?: "",
-                        refreshToken = refreshToken
+                        refreshToken = sessionManager.getRefreshToken() ?: ""
                     )
                 }
                 refreshTokens {
                     val refreshToken = sessionManager.getRefreshToken() ?: ""
-                    if (refreshToken.isBlank()) sessionManager.logout()
                     val accessToken = sessionManager.refreshToken(refreshToken) ?: ""
-                    if (accessToken.isBlank()) sessionManager.logout()
+                    if (refreshToken.isBlank() || accessToken.isBlank()) sessionManager.logout()
                     BearerTokens(
                         accessToken = accessToken,
                         refreshToken = refreshToken
