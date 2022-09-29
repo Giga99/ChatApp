@@ -31,6 +31,7 @@ import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
+import io.ktor.client.features.websocket.*
 import io.ktor.http.*
 import javax.inject.Singleton
 
@@ -63,7 +64,7 @@ object DataModule {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
         }
-//        install(WebSockets)
+        install(WebSockets)
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }

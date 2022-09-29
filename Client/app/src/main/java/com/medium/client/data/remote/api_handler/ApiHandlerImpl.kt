@@ -15,7 +15,6 @@ class ApiHandlerImpl @Inject constructor() : ApiHandler {
         withContext(Dispatchers.IO) {
             try {
                 val response = call()
-                println("RESPONSE: $response")
                 if (!response.successful) {
                     return@withContext Result.Error(message = response.message)
                 }
@@ -24,17 +23,31 @@ class ApiHandlerImpl @Inject constructor() : ApiHandler {
                 Result.Success(apiResponse)
             } catch (e: Exception) {
                 Timber.e(e)
-                e.message?.let { message ->
-                    val json = extractJsonFromError(message)
-                    val response = Json.decodeFromString<BasicApiResponse<Unit>>(json)
-                    Result.Error(response.message)
+                e.message?.let { errorMessage ->
+                    println(errorMessage)
+                    val json = extractJsonFromError(errorMessage)
+                    val message = if (json == null) errorMessage
+                    else Json.decodeFromString<BasicApiResponse<Unit>>(json).message
+                    Result.Error(message)
                 } ?: Result.Error("Unknown error!")
             }
         }
 
-    private fun extractJsonFromError(errorMessage: String): String {
+    override suspend fun <T> handleSocket(call: suspend () -> T): Result<T> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = call()
+                Result.Success(response)
+            } catch (e: Exception) {
+                Timber.e(e)
+                Result.Error(e.message ?: "Unknown error!")
+            }
+        }
+
+    private fun extractJsonFromError(errorMessage: String): String? {
         val jsonBegin = errorMessage.indexOfFirst { it == '"' }
         val jsonEnd = errorMessage.indexOfLast { it == '"' }
+        if (jsonBegin == -1 || jsonEnd == -1) return null
         return errorMessage.substring(jsonBegin + 1, jsonEnd)
     }
 }
