@@ -14,7 +14,7 @@ interface AuthService {
 
     suspend fun refreshToken(body: RefreshTokenBody): BasicApiResponse<AuthResponse>
 
-    sealed class Endpoints(val url: String) {
+    sealed class Endpoints(val path: String) {
         object Register : Endpoints("auth/register")
         object Login : Endpoints("auth/login")
         object RefreshToken : Endpoints("auth/refreshToken")

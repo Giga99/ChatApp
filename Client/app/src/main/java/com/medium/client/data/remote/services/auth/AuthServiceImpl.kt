@@ -15,17 +15,17 @@ class AuthServiceImpl @Inject constructor(
 ) : AuthService {
 
     override suspend fun register(body: RegisterBody): BasicApiResponse<AuthResponse> =
-        client.post(AuthService.Endpoints.Register.url) {
+        client.post(AuthService.Endpoints.Register.path) {
             setBody(body)
         }.body()
 
     override suspend fun login(body: LoginBody): BasicApiResponse<AuthResponse> =
-        client.post(AuthService.Endpoints.Login.url) {
+        client.post(AuthService.Endpoints.Login.path) {
             setBody(body)
         }.body()
 
     override suspend fun refreshToken(body: RefreshTokenBody): BasicApiResponse<AuthResponse> =
-        client.post(AuthService.Endpoints.RefreshToken.url) {
+        client.post(AuthService.Endpoints.RefreshToken.path) {
             setBody(body)
         }.body()
 }

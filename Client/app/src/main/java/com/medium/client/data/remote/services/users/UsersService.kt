@@ -9,7 +9,7 @@ interface UsersService {
 
     suspend fun searchUsers(query: String): BasicApiResponse<List<UserResponse>>
 
-    sealed class Endpoints(val url: String) {
+    sealed class Endpoints(val path: String) {
         object UserDetails : Endpoints("users/userDetails")
         object SearchUsers : Endpoints("users/search")
     }

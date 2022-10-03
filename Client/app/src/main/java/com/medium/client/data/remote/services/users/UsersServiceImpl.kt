@@ -12,10 +12,10 @@ class UsersServiceImpl @Inject constructor(
 ) : UsersService {
 
     override suspend fun getUserDetails(): BasicApiResponse<UserResponse> =
-        client.get(UsersService.Endpoints.UserDetails.url).body()
+        client.get(UsersService.Endpoints.UserDetails.path).body()
 
     override suspend fun searchUsers(query: String): BasicApiResponse<List<UserResponse>> =
-        client.get(UsersService.Endpoints.SearchUsers.url) {
+        client.get(UsersService.Endpoints.SearchUsers.path) {
             url {
                 parameters.append("query", query)
             }

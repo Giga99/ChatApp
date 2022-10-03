@@ -20,7 +20,7 @@ interface ChatsService {
 
     suspend fun closeSession()
 
-    sealed class Endpoints(val url: String) {
+    sealed class Endpoints(val path: String) {
         object UserChats : Endpoints("messaging/chats")
         object AllMessages : Endpoints("messaging/messages")
         object ChatSocket : Endpoints("ws/chat-socket")

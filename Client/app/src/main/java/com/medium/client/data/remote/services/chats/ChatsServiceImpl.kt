@@ -21,15 +21,15 @@ class ChatsServiceImpl @Inject constructor(
     private var socket: WebSocketSession? = null
 
     override suspend fun getUserChats(): BasicApiResponse<List<ChatResponse>> =
-        client.get(ChatsService.Endpoints.UserChats.url).body()
+        client.get(ChatsService.Endpoints.UserChats.path).body()
 
     override suspend fun getAllMessages(body: GetAllMessagesBody): BasicApiResponse<List<MessageResponse>> =
-        client.post(ChatsService.Endpoints.AllMessages.url) {
+        client.post(ChatsService.Endpoints.AllMessages.path) {
             setBody(body)
         }.body()
 
     override suspend fun initSocket(participant: String) {
-        client.webSocket("${ChatsService.Endpoints.ChatSocket.url}?participant=$participant") {
+        client.webSocket("${ChatsService.Endpoints.ChatSocket.path}?participant=$participant") {
             socket = this
         }
         println(socket)
