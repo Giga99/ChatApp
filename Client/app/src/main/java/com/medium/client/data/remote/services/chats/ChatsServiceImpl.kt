@@ -29,10 +29,8 @@ class ChatsServiceImpl @Inject constructor(
         }.body()
 
     override suspend fun initSocket(participant: String) {
-        socket = client.webSocketSession {
-            url(path = ChatsService.Endpoints.ChatSocket.url) {
-                parameters.append("participant", participant)
-            }
+        client.webSocket("${ChatsService.Endpoints.ChatSocket.url}?participant=$participant") {
+            socket = this
         }
         println(socket)
     }

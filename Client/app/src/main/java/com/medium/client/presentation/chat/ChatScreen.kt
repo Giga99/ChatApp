@@ -103,7 +103,8 @@ fun MessagesSuccess(
         )
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            reverseLayout = true
         ) {
             items(
                 items = messages,
