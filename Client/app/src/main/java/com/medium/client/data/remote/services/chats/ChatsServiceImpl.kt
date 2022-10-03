@@ -5,11 +5,10 @@ import com.medium.client.data.remote.requests.GetAllMessagesBody
 import com.medium.client.data.remote.responses.ChatResponse
 import com.medium.client.data.remote.responses.MessageResponse
 import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.features.websocket.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -22,12 +21,12 @@ class ChatsServiceImpl @Inject constructor(
     private var socket: WebSocketSession? = null
 
     override suspend fun getUserChats(): BasicApiResponse<List<ChatResponse>> =
-        client.get(path = ChatsService.Endpoints.UserChats.url)
+        client.get(ChatsService.Endpoints.UserChats.url).body()
 
     override suspend fun getAllMessages(body: GetAllMessagesBody): BasicApiResponse<List<MessageResponse>> =
-        client.post(path = ChatsService.Endpoints.AllMessages.url) {
-            this.body = body
-        }
+        client.post(ChatsService.Endpoints.AllMessages.url) {
+            setBody(body)
+        }.body()
 
     override suspend fun initSocket(participant: String) {
         socket = client.webSocketSession {

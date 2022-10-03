@@ -29,7 +29,7 @@ buildscript {
         accompanistSystemUiControllerVersion = '0.25.1'
 
         // Ktor
-        ktorVersion = "1.6.3"
+        ktorVersion = "2.1.2"
         logbackVersion = "1.4.1"
 
         // Tests

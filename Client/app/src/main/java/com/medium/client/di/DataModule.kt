@@ -25,14 +25,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.*
-import io.ktor.client.features.auth.*
-import io.ktor.client.features.auth.providers.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.features.websocket.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 @Module
@@ -60,13 +61,30 @@ object DataModule {
         @Port port: Int,
         sessionManager: SessionManager
     ): HttpClient = HttpClient(CIO) {
+//        expectSuccess = false
+//        HttpResponseValidator {
+//            validateResponse { response ->
+//                println(response)
+//            }
+//        }
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
         }
-        install(WebSockets)
-        install(JsonFeature) {
-            serializer = KotlinxSerializer()
+        install(WebSockets) {
+            pingInterval = 20_000
+        }
+//        install(JsonFeature) {
+//            accept(ContentType.Application.Json)
+//            serializer =
+//                KotlinxSerializer()
+//        }
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    prettyPrint = true
+                }
+            )
         }
         install(Auth) {
             bearer {
