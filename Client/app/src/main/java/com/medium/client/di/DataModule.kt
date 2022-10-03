@@ -32,6 +32,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
@@ -61,24 +62,14 @@ object DataModule {
         @Port port: Int,
         sessionManager: SessionManager
     ): HttpClient = HttpClient(CIO) {
-//        expectSuccess = false
-//        HttpResponseValidator {
-//            validateResponse { response ->
-//                println(response)
-//            }
-//        }
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
         }
         install(WebSockets) {
             pingInterval = 20_000
+            contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
-//        install(JsonFeature) {
-//            accept(ContentType.Application.Json)
-//            serializer =
-//                KotlinxSerializer()
-//        }
         install(ContentNegotiation) {
             json(
                 Json {
