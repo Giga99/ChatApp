@@ -43,7 +43,7 @@ fun RegisterScreen(
     navigator: DestinationsNavigator,
     registerViewModel: RegisterViewModel = hiltViewModel()
 ) {
-    val viewState = registerViewModel.viewState.collectAsState().value
+    val viewState = registerViewModel.uiState.collectAsState().value
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 

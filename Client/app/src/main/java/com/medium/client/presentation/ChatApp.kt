@@ -28,7 +28,7 @@ fun ChatApp(
 ) {
     val navController = rememberNavController()
     val systemUiController = rememberSystemUiController()
-    val viewState = mainViewModel.viewState.collectAsState().value
+    val viewState = mainViewModel.uiState.collectAsState().value
 
     if (viewState.sessionStatus is Result.Loading) {
 

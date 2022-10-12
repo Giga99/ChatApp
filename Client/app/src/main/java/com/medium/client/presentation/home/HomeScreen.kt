@@ -33,7 +33,7 @@ fun HomeScreen(
     navigator: DestinationsNavigator,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val viewState = homeViewModel.viewState.collectAsState().value
+    val viewState = homeViewModel.uiState.collectAsState().value
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     val tabs = viewState.chats.keys.toList()

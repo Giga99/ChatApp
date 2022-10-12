@@ -11,18 +11,18 @@ abstract class BaseViewModel<ViewState, Event, SideEffect>(
     viewState: ViewState
 ) : ViewModel() {
 
-    private val _viewState = MutableStateFlow(viewState)
-    val viewState = _viewState.asStateFlow()
+    private val _uiState = MutableStateFlow(viewState)
+    val uiState = _uiState.asStateFlow()
 
     protected val _sideEffects = Channel<SideEffect>()
     val sideEffects = _sideEffects.receiveAsFlow()
 
     protected fun setState(reducer: ViewState.() -> ViewState) {
-        _viewState.update(reducer)
+        _uiState.update(reducer)
     }
 
     protected fun getState(): ViewState {
-        return _viewState.value
+        return _uiState.value
     }
 
     abstract fun onEvent(event: Event)

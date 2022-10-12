@@ -43,7 +43,7 @@ fun LoginScreen(
     navigator: DestinationsNavigator,
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    val viewState = loginViewModel.viewState.collectAsState().value
+    val viewState = loginViewModel.uiState.collectAsState().value
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 

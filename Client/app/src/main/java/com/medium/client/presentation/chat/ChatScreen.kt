@@ -38,7 +38,7 @@ fun ChatScreen(
     navigator: DestinationsNavigator
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
-    val viewState = chatViewModel.viewState.collectAsState().value
+    val viewState = chatViewModel.uiState.collectAsState().value
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(chatViewModel.sideEffects) {
